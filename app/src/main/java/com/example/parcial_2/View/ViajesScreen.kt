@@ -1,5 +1,6 @@
 package com.example.parcial_2.View
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,18 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Luggage
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -53,12 +48,16 @@ private fun dateFormatter(pattern: String) = SimpleDateFormat(pattern, Locale.fo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ViajesScreen(viewModel: ViajesViewModel, onCrearViaje: () -> Unit) {
+fun ViajesScreen(
+    viewModel: ViajesViewModel,
+    onCrearViaje: () -> Unit,
+    onSeleccionarViaje: (Viaje) -> Unit
+) {
     Scaffold(
         topBar = { TopAppBar(title = { Text("Mis viajes") }) },
         floatingActionButton = {
             FloatingActionButton(onClick = onCrearViaje) {
-                Icon(Icons.Default.Add, contentDescription = "Crear viaje")
+                Text("+", style = MaterialTheme.typography.headlineMedium)
             }
         }
     ) { padding ->
@@ -68,7 +67,7 @@ fun ViajesScreen(viewModel: ViajesViewModel, onCrearViaje: () -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(Icons.Default.Luggage, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                Text("✈", color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.height(12.dp))
                 Text("Aún no tienes viajes", style = MaterialTheme.typography.titleMedium)
                 Text("Pulsa + para registrar el primero.")
@@ -80,7 +79,7 @@ fun ViajesScreen(viewModel: ViajesViewModel, onCrearViaje: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(viewModel.viajes, key = { it.id }) { viaje ->
-                    ViajeCard(viaje)
+                    ViajeCard(viaje, onClick = { onSeleccionarViaje(viaje) })
                 }
             }
         }
@@ -88,13 +87,16 @@ fun ViajesScreen(viewModel: ViajesViewModel, onCrearViaje: () -> Unit) {
 }
 
 @Composable
-private fun ViajeCard(viaje: Viaje) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+private fun ViajeCard(viaje: Viaje, onClick: () -> Unit) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Luggage, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Text("✈", color = MaterialTheme.colorScheme.primary)
             Column(modifier = Modifier.padding(start = 16.dp)) {
                 Text(viaje.nombre, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.titleMedium)
                 Text(viaje.destino, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -128,7 +130,7 @@ fun CrearViajeScreen(
                 title = { Text("Crear viaje") },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
+                        Text("‹", style = MaterialTheme.typography.headlineMedium)
                     }
                 }
             )
@@ -185,7 +187,7 @@ fun CrearViajeScreen(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(14.dp)
             ) {
-                Icon(Icons.Default.Luggage, contentDescription = null)
+                Text("▣")
                 Text("  Guardar")
             }
         }
@@ -214,7 +216,7 @@ private fun FechaButton(label: String, fecha: Long?, modifier: Modifier = Modifi
             readOnly = true,
             singleLine = true,
             placeholder = { Text("Seleccionar") },
-            trailingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) },
+            trailingIcon = { Text("▦") },
             modifier = Modifier.fillMaxWidth(),
             enabled = false
         )
@@ -226,7 +228,7 @@ private fun FechaButton(label: String, fecha: Long?, modifier: Modifier = Modifi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SelectorFecha(
+internal fun SelectorFecha(
     fechaInicial: Long?,
     onCancelar: () -> Unit,
     onConfirmar: (Long) -> Unit
@@ -243,10 +245,10 @@ private fun SelectorFecha(
     }
 }
 
-private fun fechaIso(millis: Long): String = dateFormatter("yyyy-MM-dd").format(Date(millis))
+internal fun fechaIso(millis: Long): String = dateFormatter("yyyy-MM-dd").format(Date(millis))
 
-private fun formatearFecha(fecha: String): String =
+internal fun formatearFecha(fecha: String): String =
     runCatching { dateFormatter("dd MMM yyyy").format(dateFormatter("yyyy-MM-dd").parse(fecha)!!) }
         .getOrDefault(fecha)
 
-private fun formatearFecha(millis: Long): String = dateFormatter("dd MMM yyyy").format(Date(millis))
+internal fun formatearFecha(millis: Long): String = dateFormatter("dd MMM yyyy").format(Date(millis))

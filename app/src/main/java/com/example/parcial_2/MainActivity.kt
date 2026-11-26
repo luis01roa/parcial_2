@@ -4,35 +4,51 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.parcial_2.View.CrearViajeScreen
+import com.example.parcial_2.View.DetalleViajeScreen
+import com.example.parcial_2.View.RegistrarGastoScreen
 import com.example.parcial_2.View.ViajesScreen
 import com.example.parcial_2.ViewModel.ViajesViewModel
 import com.example.parcial_2.ui.theme.Parcial_2Theme
 
 class MainActivity : ComponentActivity() {
+    private val viajesViewModel: ViajesViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             Parcial_2Theme {
-                val viajesViewModel: ViajesViewModel = viewModel()
-                var mostrandoFormulario by remember { mutableStateOf(false) }
+                var pantalla by remember { mutableIntStateOf(0) }
 
-                if (mostrandoFormulario) {
-                    CrearViajeScreen(
+                when (pantalla) {
+                    1 -> CrearViajeScreen(
                         viewModel = viajesViewModel,
-                        onVolver = { mostrandoFormulario = false },
-                        onViajeGuardado = { mostrandoFormulario = false }
+                        onVolver = { pantalla = 0 },
+                        onViajeGuardado = { pantalla = 0 }
                     )
-                } else {
-                    ViajesScreen(
+                    2 -> DetalleViajeScreen(
                         viewModel = viajesViewModel,
-                        onCrearViaje = { mostrandoFormulario = true }
+                        onVolver = { pantalla = 0 },
+                        onAgregarGasto = { pantalla = 3 }
+                    )
+                    3 -> RegistrarGastoScreen(
+                        viewModel = viajesViewModel,
+                        onVolver = { pantalla = 2 },
+                        onGastoGuardado = { pantalla = 2 }
+                    )
+                    else -> ViajesScreen(
+                        viewModel = viajesViewModel,
+                        onCrearViaje = { pantalla = 1 },
+                        onSeleccionarViaje = { viaje ->
+                            viajesViewModel.seleccionarViaje(viaje)
+                            pantalla = 2
+                        }
                     )
                 }
             }
