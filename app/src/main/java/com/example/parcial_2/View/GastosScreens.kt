@@ -42,7 +42,7 @@ import com.example.parcial_2.Model.Viaje
 import com.example.parcial_2.ViewModel.ViajesViewModel
 import java.text.NumberFormat
 import java.util.Locale
-
+import androidx.compose.foundation.layout.Box
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetalleViajeScreen(
@@ -199,7 +199,7 @@ fun RegistrarGastoScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp)
             )
-            Column {
+            Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = categoria,
                     onValueChange = {},
@@ -207,8 +207,13 @@ fun RegistrarGastoScreen(
                     label = { Text("Categoría") },
                     placeholder = { Text("Selecciona una categoría") },
                     trailingIcon = { Text("⌄") },
-                    modifier = Modifier.fillMaxWidth().clickable { mostrarCategorias = true },
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { mostrarCategorias = true }
                 )
                 DropdownMenu(
                     expanded = mostrarCategorias,
