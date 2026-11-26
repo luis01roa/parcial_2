@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.parcial_2.View.CrearViajeScreen
@@ -24,30 +24,30 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Parcial_2Theme {
-                var pantalla by remember { mutableIntStateOf(0) }
+                var pantalla by remember { mutableStateOf("lista") }
 
                 when (pantalla) {
-                    1 -> CrearViajeScreen(
+                    "crear" -> CrearViajeScreen(
                         viewModel = viajesViewModel,
-                        onVolver = { pantalla = 0 },
-                        onViajeGuardado = { pantalla = 0 }
+                        onVolver = { pantalla = "lista" },
+                        onViajeGuardado = { pantalla = "lista" }
                     )
-                    2 -> DetalleViajeScreen(
+                    "detalle" -> DetalleViajeScreen(
                         viewModel = viajesViewModel,
-                        onVolver = { pantalla = 0 },
-                        onAgregarGasto = { pantalla = 3 }
+                        onVolver = { pantalla = "lista" },
+                        onAgregarGasto = { pantalla = "gasto" }
                     )
-                    3 -> RegistrarGastoScreen(
+                    "gasto" -> RegistrarGastoScreen(
                         viewModel = viajesViewModel,
-                        onVolver = { pantalla = 2 },
-                        onGastoGuardado = { pantalla = 2 }
+                        onVolver = { pantalla = "detalle" },
+                        onGastoGuardado = { pantalla = "detalle" }
                     )
                     else -> ViajesScreen(
                         viewModel = viajesViewModel,
-                        onCrearViaje = { pantalla = 1 },
+                        onCrearViaje = { pantalla = "crear" },
                         onSeleccionarViaje = { viaje ->
                             viajesViewModel.seleccionarViaje(viaje)
-                            pantalla = 2
+                            pantalla = "detalle"
                         }
                     )
                 }
