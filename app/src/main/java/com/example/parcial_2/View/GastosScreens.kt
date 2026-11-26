@@ -14,16 +14,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,16 +55,26 @@ fun DetalleViajeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detalle del viaje") },
+                title = { Text("Detalle del viaje", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
                         Text("‹", style = MaterialTheme.typography.headlineMedium)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
         },
+        containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
-            androidx.compose.material3.FloatingActionButton(onClick = onAgregarGasto) {
+            androidx.compose.material3.FloatingActionButton(
+                onClick = onAgregarGasto,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
                 Text("+", style = MaterialTheme.typography.headlineMedium)
             }
         }
@@ -75,18 +89,24 @@ fun DetalleViajeScreen(
                 "${formatearFecha(viaje.fechaInicio)} – ${formatearFecha(viaje.fechaFin)}",
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Total de gastos", style = MaterialTheme.typography.labelLarge)
+            ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp)) {
+                    Text("TOTAL DEL VIAJE", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimaryContainer)
                     Text(
                         viewModel.totalGastos.aMoneda(),
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
-            Text("Gastos registrados", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text(
+                "Gastos registrados · ${viewModel.gastosViaje.size}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
             if (viewModel.gastosViaje.isEmpty()) {
                 Text("Este viaje aún no tiene gastos.")
             } else {
@@ -95,7 +115,11 @@ fun DetalleViajeScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(viewModel.gastosViaje, key = { it.id }) { gasto ->
-                        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                        ElevatedCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(14.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -137,26 +161,34 @@ fun RegistrarGastoScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Registrar gasto") },
+                title = { Text("Registrar gasto", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
                         Text("‹", style = MaterialTheme.typography.headlineMedium)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp, vertical = 22.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Viaje: ${viaje.nombre}", style = MaterialTheme.typography.labelLarge)
+            Text("Viaje: ${viaje.nombre}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text("Agrega un gasto a tu viaje", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
             OutlinedTextField(
                 value = descripcion,
                 onValueChange = { descripcion = it; viewModel.limpiarError() },
                 label = { Text("Descripción") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp)
             )
             OutlinedTextField(
                 value = valor,
@@ -164,7 +196,8 @@ fun RegistrarGastoScreen(
                 label = { Text("Valor") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp)
             )
             Column {
                 OutlinedTextField(
@@ -174,7 +207,8 @@ fun RegistrarGastoScreen(
                     label = { Text("Categoría") },
                     placeholder = { Text("Selecciona una categoría") },
                     trailingIcon = { Text("⌄") },
-                    modifier = Modifier.fillMaxWidth().clickable { mostrarCategorias = true }
+                    modifier = Modifier.fillMaxWidth().clickable { mostrarCategorias = true },
+                    shape = RoundedCornerShape(14.dp)
                 )
                 DropdownMenu(
                     expanded = mostrarCategorias,
@@ -192,15 +226,18 @@ fun RegistrarGastoScreen(
                     }
                 }
             }
-            OutlinedTextField(
-                value = fecha?.let { formatearFecha(it) }.orEmpty(),
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Fecha del gasto") },
-                placeholder = { Text("Selecciona la fecha") },
-                trailingIcon = { Text("▦") },
-                modifier = Modifier.fillMaxWidth().clickable { mostrarSelectorFecha = true }
-            )
+            OutlinedButton(
+                onClick = { mostrarSelectorFecha = true },
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Text("▦", color = MaterialTheme.colorScheme.primary)
+                Text(
+                    fecha?.let { formatearFecha(it) } ?: "Seleccionar fecha del gasto",
+                    modifier = Modifier.padding(start = 10.dp),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             Text(
                 "La fecha debe estar entre ${formatearFecha(viaje.fechaInicio)} y ${formatearFecha(viaje.fechaFin)}.",
                 style = MaterialTheme.typography.bodySmall,
@@ -218,10 +255,11 @@ fun RegistrarGastoScreen(
                         onGastoGuardado()
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(14.dp)
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Guardar gasto")
+                Text("Guardar gasto", fontWeight = FontWeight.SemiBold)
             }
         }
     }

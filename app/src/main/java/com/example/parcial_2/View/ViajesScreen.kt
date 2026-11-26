@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -25,7 +26,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.text.style.TextOverflow
 import com.example.parcial_2.Model.Viaje
 import com.example.parcial_2.ViewModel.ViajesViewModel
 import java.text.SimpleDateFormat
@@ -54,29 +61,53 @@ fun ViajesScreen(
     onSeleccionarViaje: (Viaje) -> Unit
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Mis viajes") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Mis viajes", fontWeight = FontWeight.SemiBold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
-            FloatingActionButton(onClick = onCrearViaje) {
-                Text("+", style = MaterialTheme.typography.headlineMedium)
+            FloatingActionButton(
+                onClick = onCrearViaje,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Text("+", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     ) { padding ->
         if (viewModel.viajes.isEmpty()) {
             Column(
-                modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp),
+                modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 24.dp, vertical = 20.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("✈", color = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.height(12.dp))
-                Text("Aún no tienes viajes", style = MaterialTheme.typography.titleMedium)
-                Text("Pulsa + para registrar el primero.")
+                ElevatedCard(
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 28.dp, vertical = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("✈", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.height(16.dp))
+                        Text("Aún no tienes viajes", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(6.dp))
+                        Text("Pulsa + para planificar tu primer viaje.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
             }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 18.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 items(viewModel.viajes, key = { it.id }) { viaje ->
                     ViajeCard(viaje, onClick = { onSeleccionarViaje(viaje) })
@@ -90,15 +121,31 @@ fun ViajesScreen(
 private fun ViajeCard(viaje: Viaje, onClick: () -> Unit) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("✈", color = MaterialTheme.colorScheme.primary)
-            Column(modifier = Modifier.padding(start = 16.dp)) {
-                Text(viaje.nombre, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.titleMedium)
+            androidx.compose.material3.Surface(
+                modifier = Modifier.size(48.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                androidx.compose.foundation.layout.Box(contentAlignment = Alignment.Center) {
+                    Text("✈", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleMedium)
+                }
+            }
+            Column(modifier = Modifier.padding(start = 16.dp).weight(1f)) {
+                Text(
+                    viaje.nombre,
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Text(viaje.destino, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(
                     "${formatearFecha(viaje.fechaInicio)} – ${formatearFecha(viaje.fechaFin)}",
@@ -127,19 +174,31 @@ fun CrearViajeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Crear viaje") },
+                title = { Text("Crear viaje", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
                         Text("‹", style = MaterialTheme.typography.headlineMedium)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp, vertical = 22.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
+            Text(
+                "Planea tu próxima aventura",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it; viewModel.limpiarError() },
@@ -185,10 +244,10 @@ fun CrearViajeScreen(
                     if (viewModel.registrarViaje(nombre, destino, inicio, fin)) onViajeGuardado()
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(14.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("▣")
-                Text("  Guardar")
+                Text("Guardar viaje", fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -210,18 +269,19 @@ private fun FechaButton(label: String, fecha: Long?, modifier: Modifier = Modifi
     Column(modifier = modifier) {
         Text(label, style = MaterialTheme.typography.labelMedium)
         Spacer(Modifier.height(6.dp))
-        OutlinedTextField(
-            value = fecha?.let(::formatearFecha).orEmpty(),
-            onValueChange = {},
-            readOnly = true,
-            singleLine = true,
-            placeholder = { Text("Seleccionar") },
-            trailingIcon = { Text("▦") },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = false
-        )
-        TextButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-            Text(if (fecha == null) "Elegir fecha" else "Cambiar")
+        OutlinedButton(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth().height(54.dp),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Text("▦", color = MaterialTheme.colorScheme.primary)
+            Text(
+                fecha?.let(::formatearFecha) ?: "Elegir fecha",
+                modifier = Modifier.padding(start = 8.dp),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
